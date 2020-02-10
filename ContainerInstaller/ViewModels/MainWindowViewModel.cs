@@ -21,7 +21,7 @@ namespace ContainerInstaller.ViewModels
         Dictionary<string, string> containers = new Dictionary<string, string>();
 
         Dictionary<string, string> containerOptionsUserInput = new Dictionary<string, string>();
-        ObservableCollection<UserChoice> userChoices = new ObservableCollection<UserChoice>();
+        public static ObservableCollection<UserChoice> userChoices = new ObservableCollection<UserChoice>();
 
         // We need to know if Docker for windows is up and running before we can perform any actions
         bool dockerForWindowsIsRunning;
@@ -93,6 +93,8 @@ namespace ContainerInstaller.ViewModels
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
             {
 
+               
+
                 // This should be the users who sets where to store the actual "new" docker-compose file"
                 dockerComposeFilesBasePath = "C://docker-production/" + choosenContainer + "/";
 
@@ -106,12 +108,19 @@ namespace ContainerInstaller.ViewModels
                 DockerComposeFile dockerComposeFile = new DockerComposeFile();
                 dockerComposeFile.executionPath = helper.GetExecutionPath();
 
+                // Setting users choice
+                foreach (UserChoice userChoice in userChoices)
+                {
+                    dockerComposeFile.Options.Add(userChoice.UserChoiceKey, userChoice.UserChoiceValue);
+                    Console.WriteLine(userChoice.UserChoiceValue);
+                }
+
                 // WE want to read these settings automaticly from the docker-compose file and expose to the user
-                dockerComposeFile.Options.Add("ELASTICSEARCH_CONTAINER_NAME", "elasticsearch");
+                /*dockerComposeFile.Options.Add("ELASTICSEARCH_CONTAINER_NAME", "elasticsearch");
                 dockerComposeFile.Options.Add("ELASTICSEARCH_OUTSIDE_PORT", "9200");
                 dockerComposeFile.Options.Add("KIBANA_CONTAINER_NAME", "kibana");
                 dockerComposeFile.Options.Add("KIBANA_VIRTUAL_HOSTNAME", "kibana.local");
-                dockerComposeFile.Options.Add("KIBANA_OUTSIDE_PORT", "5601");
+                dockerComposeFile.Options.Add("KIBANA_OUTSIDE_PORT", "5601");*/
                 dockerComposeFile.DownloadDockerComposeTemplate(containers[choosenContainer] + "docker-compose.yml");
                 dockerComposeFile.RemapDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
                 dockerComposeFile.CleanTmpFiles();
@@ -216,7 +225,7 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
-        public ObservableCollection<UserChoice> UserChoices
+        public static ObservableCollection<UserChoice> UserChoices
         {
             get
             {
@@ -225,8 +234,6 @@ namespace ContainerInstaller.ViewModels
             set
             {
                 userChoices = value;
-                OnPropertyChanged("UserChoices");
-                Console.WriteLine("test");
             }
         }
     }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ContainerInstaller.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -37,7 +39,8 @@ namespace ContainerInstaller.Models
             {
                 userChoicevalue = value;
                 OnPropertyChanged("UserChoiceValue");
-                Console.WriteLine(UserChoiceValue);
+                FindAndReplaceValue(UserChoiceValue);
+                Console.WriteLine(this.userChoiceKey);
             }
         }
 
@@ -54,6 +57,18 @@ namespace ContainerInstaller.Models
             if (handler != null)
             {
                 handler(this, e);
+            }
+        }
+
+        public void FindAndReplaceValue(string value)
+        {
+            foreach (UserChoice userChoice in MainWindowViewModel.userChoices)
+            {
+                if(userChoice.userChoiceKey == this.userChoiceKey)
+                {
+                    userChoice.userChoicevalue = value;
+                    Console.WriteLine("WE are here");
+                }
             }
         }
     }

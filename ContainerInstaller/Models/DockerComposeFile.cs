@@ -30,12 +30,6 @@ namespace ContainerInstaller.Models
 
             WClient = new WebClient();
             Options = new Dictionary<string, string>();
-
-            // Saving the compose file when remapped (maybe we should do this somewhere else)
-            //File.WriteAllText(GetExecutionPath() + "temp-docker-compose-file.yml", "");
-
-            //Console.WriteLine(RepositoryUrl);
-
         }
 
         public void DownloadDockerComposeTemplate(string RepositoryDockerComposeFileUrl)
