@@ -9,13 +9,6 @@ namespace ContainerInstaller
 {
     interface IDockerComposeFileTemplate
     {
-        // Where is the docker-compose template file located
-        string RepositoryUrl
-        {
-            get;
-            set;
-        }
-
         // Used to collect the templates from repositories
         WebClient WClient
         {
@@ -33,7 +26,9 @@ namespace ContainerInstaller
         }
 
         // Downloading docker compose file from repository
-        void DownloadDockerComposeTemplate(string outputFilePath);
+        void DownloadDockerComposeTemplate(string RepositoryDockerComposeFileUrl);
+
+        void DownloadContainerInfo(string RepositoryContainerInfoFileUrl);
 
         void RemapDockerComposeTemplate(string outputFilePath);
     }

@@ -1,0 +1,12 @@
+{
+  "container-choices": [
+    {
+      "repository-container-folder-name": "Kibana",
+      "repository-container-url": "https://raw.githubusercontent.com/digit-rpa/docker-compose-templates/master/Kibana/"
+    },
+    {
+      "repository-container-folder-name": "Password Handler",
+      "repository-container-url": "https://raw.githubusercontent.com/digit-rpa/docker-compose-templates/master/Password-handler/"
+    }
+  ]
+}

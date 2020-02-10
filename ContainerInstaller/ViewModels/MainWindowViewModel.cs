@@ -1,5 +1,6 @@
 ﻿using ContainerInstaller.Common;
 using ContainerInstaller.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,7 +18,10 @@ namespace ContainerInstaller.ViewModels
     class MainWindowViewModel : ViewModelBase
     {
         // List of containers that this program is able to automatically setup
-        ObservableCollection<string> containerOptions = new ObservableCollection<string>();
+        Dictionary<string, string> containers = new Dictionary<string, string>();
+
+        Dictionary<string, string> containerOptionsUserInput = new Dictionary<string, string>();
+        ObservableCollection<UserChoice> userChoices = new ObservableCollection<UserChoice>();
 
         // We need to know if Docker for windows is up and running before we can perform any actions
         bool dockerForWindowsIsRunning;
@@ -29,18 +33,32 @@ namespace ContainerInstaller.ViewModels
 
         string choosenContainer;
 
+        SettingsReader settingsReader;
+
+        Helper helper;
+
         // Commands
         private ICommand setupContainerCommand;
 
         // Constructor
         public MainWindowViewModel() {
 
+            helper = new Helper();
+
+            // Reading container settings (where is repository foreach container located, and the name of the container choice)
+            settingsReader = new SettingsReader();
+            dynamic containerSettings = settingsReader.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
+
+            // Wich Containers is there to choose from by the user?
+            foreach(dynamic container in containerSettings["container-choices"]) {
+                string containerName = container["repository-container-folder-name"];
+                string containerRepositoryUrl = container["repository-container-url"];
+                containers.Add(containerName, containerRepositoryUrl);
+            }
+
             // Relay commands 
             SetupContainerCommand = new RelayCommand(SetupContainer, param => true);
-            
-            // Wich Containers is there to choose from by the user?
-            containerOptions.Add("Kibana");
-
+                        
             
             HealthState = "Checking state...";
 
@@ -56,9 +74,23 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
+        private void PrepareContainerView(dynamic containerSettings)
+        {
+
+        }
+
         private void SetupContainer(object obj)
         {
-            if (dockerForWindowsIsRunning)
+            try
+            {
+                // Setting the choosen container value
+                choosenContainer = obj.ToString();
+            } catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
             {
 
                 // This should be the users who sets where to store the actual "new" docker-compose file"
@@ -72,13 +104,18 @@ namespace ContainerInstaller.ViewModels
 
                 // TESTING THESE VALUES SHOULD BE COMMING FROM THE USER
                 DockerComposeFile dockerComposeFile = new DockerComposeFile();
-                dockerComposeFile.RepositoryUrl = @"https://raw.githubusercontent.com/digit-rpa/docker-compose-templates/master/kibana-docker-compose.yml";
+                dockerComposeFile.executionPath = helper.GetExecutionPath();
+
+                // WE want to read these settings automaticly from the docker-compose file and expose to the user
                 dockerComposeFile.Options.Add("ELASTICSEARCH_CONTAINER_NAME", "elasticsearch");
                 dockerComposeFile.Options.Add("ELASTICSEARCH_OUTSIDE_PORT", "9200");
                 dockerComposeFile.Options.Add("KIBANA_CONTAINER_NAME", "kibana");
                 dockerComposeFile.Options.Add("KIBANA_VIRTUAL_HOSTNAME", "kibana.local");
                 dockerComposeFile.Options.Add("KIBANA_OUTSIDE_PORT", "5601");
-                dockerComposeFile.DownloadDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
+                dockerComposeFile.DownloadDockerComposeTemplate(containers[choosenContainer] + "docker-compose.yml");
+                dockerComposeFile.RemapDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
+                dockerComposeFile.CleanTmpFiles();
+
 
                 // The path to where this docker-compose.yml file should be executed (maybe copied?) 
                 // Should come from user input
@@ -115,7 +152,18 @@ namespace ContainerInstaller.ViewModels
         }
 
         // Getters and Setters
-        public ObservableCollection<string> ContainerOptions { get => containerOptions; set => containerOptions = value; }
+        public Dictionary<string, string> Containers
+        {
+            get
+            {
+                return containers;
+            }
+            set
+            {
+                containers = value;
+                OnPropertyChanged("ContainerOptions");
+            }
+        }
         public string HealthState
         {
             get
@@ -130,6 +178,7 @@ namespace ContainerInstaller.ViewModels
         }
 
         public ICommand SetupContainerCommand { get => setupContainerCommand; set => setupContainerCommand = value; }
+
         public string ChoosenContainer
         {
             get
@@ -140,6 +189,44 @@ namespace ContainerInstaller.ViewModels
             {
                 choosenContainer = value;
                 OnPropertyChanged("ChoosenContainer");
+                UpdateUserChoices();
+            }
+        }
+
+        public void UpdateUserChoices()
+        {
+            DockerComposeFile tmpFile = new DockerComposeFile();
+            tmpFile.DownloadContainerInfo(containers[choosenContainer] + "container-info.json");
+            dynamic containerOptions = settingsReader.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
+            
+            foreach(dynamic options in containerOptions["options"])
+            {
+
+                foreach(JProperty option in options.Properties())
+                {
+                    // Adding userchoices to frontend
+                    userChoices.Add(
+                        new UserChoice
+                        {
+                            UserChoiceKey = option.Name,
+                            UserChoiceValue = option.Value.ToString()
+                        }
+                    );
+                }
+            }
+        }
+
+        public ObservableCollection<UserChoice> UserChoices
+        {
+            get
+            {
+                return userChoices;
+            }
+            set
+            {
+                userChoices = value;
+                OnPropertyChanged("UserChoices");
+                Console.WriteLine("test");
             }
         }
     }
