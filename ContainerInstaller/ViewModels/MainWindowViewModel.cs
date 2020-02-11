@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,6 +54,7 @@ namespace ContainerInstaller.ViewModels
             foreach(dynamic container in containerSettings["container-choices"]) {
                 string containerName = container["repository-container-folder-name"];
                 string containerRepositoryUrl = container["repository-container-url"];
+                
                 containers.Add(containerName, containerRepositoryUrl);
             }
 
@@ -93,20 +95,59 @@ namespace ContainerInstaller.ViewModels
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
             {
 
-               
-
                 // This should be the users who sets where to store the actual "new" docker-compose file"
-                dockerComposeFilesBasePath = "C://docker-production/" + choosenContainer + "/";
+                dockerComposeFilesBasePath = @"C:\docker-production\" + choosenContainer + @"\";
+
+                // TESTING THESE VALUES SHOULD BE COMMING FROM THE USER
+                DockerComposeFile dockerComposeFile = new DockerComposeFile();
+                dockerComposeFile.executionPath = helper.GetExecutionPath();
+
+                dynamic containerInfo = ReadContainerInfoFile();
+
+                // Maybe we have website zip url, if we have, then we download it to the container folder
+                try
+                {
+                    string websiteZipUrl = containerInfo["website-repository-zip"];
+                    // Only do this if we have website-zip as part of container-info.json
+                    dockerComposeFile.DownloadWebSite(websiteZipUrl, helper.GetExecutionPath() + "master.zip");
+
+                    // Unzip project
+                    ZipFile.ExtractToDirectory(helper.GetExecutionPath() + "master.zip", helper.GetExecutionPath() + "workfolder");
+
+                    Console.WriteLine("Base exe path: " + helper.GetExecutionPath());
+
+                    foreach(string directory in Directory.EnumerateDirectories(helper.GetExecutionPath() + "workfolder"))
+                    {
+                        Console.WriteLine("Directory to move: " + directory);
+                        Console.WriteLine("Destination path: " + dockerComposeFilesBasePath);
+                        Directory.Move(directory, dockerComposeFilesBasePath);
+                        
+                    }
+                    // DELETE THE WORKFOLDER AND repos master zip
+                    Directory.Delete(helper.GetExecutionPath() + "workfolder");
+                    File.Delete(helper.GetExecutionPath() + "master.zip");
+                    
+                    // We need to move .env.example to .evn
+                    File.Move(dockerComposeFilesBasePath + ".env.example", dockerComposeFilesBasePath + ".env");
+
+                    Console.WriteLine("VALUE: " + userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString());
+
+                    if (!String.IsNullOrEmpty(userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString()))
+                    {
+                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "VIRTUAL_HOST=" + userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString() + " \r\n");
+                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "DB_ROOT_PASSWORD=" + userChoices.Single(x => x.UserChoiceKey == "DATABASE_ROOT_PASSWORD_VALUE").UserChoiceValue.ToString() + " \r\n");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 
                 // Create directory if not exists
                 if (!Directory.Exists(dockerComposeFilesBasePath))
                 {
                     Directory.CreateDirectory(dockerComposeFilesBasePath);
                 }
-
-                // TESTING THESE VALUES SHOULD BE COMMING FROM THE USER
-                DockerComposeFile dockerComposeFile = new DockerComposeFile();
-                dockerComposeFile.executionPath = helper.GetExecutionPath();
 
                 // Setting users choice
                 foreach (UserChoice userChoice in userChoices)
@@ -115,31 +156,37 @@ namespace ContainerInstaller.ViewModels
                     Console.WriteLine(userChoice.UserChoiceValue);
                 }
 
-                // WE want to read these settings automaticly from the docker-compose file and expose to the user
-                /*dockerComposeFile.Options.Add("ELASTICSEARCH_CONTAINER_NAME", "elasticsearch");
-                dockerComposeFile.Options.Add("ELASTICSEARCH_OUTSIDE_PORT", "9200");
-                dockerComposeFile.Options.Add("KIBANA_CONTAINER_NAME", "kibana");
-                dockerComposeFile.Options.Add("KIBANA_VIRTUAL_HOSTNAME", "kibana.local");
-                dockerComposeFile.Options.Add("KIBANA_OUTSIDE_PORT", "5601");*/
+                // If we have installation script to execute after container is running
+                string installationScript = "";
+                try
+                {
+                    installationScript = containerInfo["installation-script-path"];
+                } catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
                 dockerComposeFile.DownloadDockerComposeTemplate(containers[choosenContainer] + "docker-compose.yml");
                 dockerComposeFile.RemapDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
+                                
                 dockerComposeFile.CleanTmpFiles();
-
-
+                
                 // The path to where this docker-compose.yml file should be executed (maybe copied?) 
                 // Should come from user input
                 string command = "/K cd " + dockerComposeFilesBasePath + " && ";
                 command += "docker-compose up -d && ";
+                
+                if(!String.IsNullOrEmpty(installationScript))
+                {
+                    command += "docker exec " + userChoices.Single(x => x.UserChoiceKey == "CONTAINER_NAME_VALUE").UserChoiceValue.ToString() + " php " + installationScript + " && ";
+                }
+
                 command += "timeout 15 && ";
                 command += "exit";
 
                 // Lets try to setup container by docker-compose.yml file inside CMD
                 Process cmd = new Process();
                 cmd.StartInfo.FileName = "cmd.exe";
-                //cmd.StartInfo.UseShellExecute = false;
-                //cmd.StartInfo.RedirectStandardOutput = true;
-                //cmd.StartInfo.RedirectStandardError = true;
-                //cmd.StartInfo.CreateNoWindow = true;
                 cmd.StartInfo.Verb = "runas";
                 cmd.StartInfo.Arguments = command;
                 cmd.Start();
@@ -202,12 +249,21 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
-        public void UpdateUserChoices()
+        private dynamic ReadContainerInfoFile()
         {
             DockerComposeFile tmpFile = new DockerComposeFile();
             tmpFile.DownloadContainerInfo(containers[choosenContainer] + "container-info.json");
             dynamic containerOptions = settingsReader.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
-            
+
+            return containerOptions;
+        }
+
+        public void UpdateUserChoices()
+        {
+            dynamic containerOptions = ReadContainerInfoFile();
+
+            userChoices.Clear();
+
             foreach(dynamic options in containerOptions["options"])
             {
 

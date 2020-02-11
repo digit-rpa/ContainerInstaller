@@ -32,14 +32,19 @@ namespace ContainerInstaller.Models
             Options = new Dictionary<string, string>();
         }
 
-        public void DownloadDockerComposeTemplate(string RepositoryDockerComposeFileUrl)
+        public void DownloadDockerComposeTemplate(string repositoryDockerComposeFileUrl)
         {
-            WClient.DownloadFile(RepositoryDockerComposeFileUrl, helper.GetExecutionPath() + tmpFileName);
+            WClient.DownloadFile(repositoryDockerComposeFileUrl, helper.GetExecutionPath() + tmpFileName);
         }
 
-        public void DownloadContainerInfo(string RepositoryContainerInfoFileUrl)
+        public void DownloadContainerInfo(string repositoryContainerInfoFileUrl)
         {
-            WClient.DownloadFile(RepositoryContainerInfoFileUrl, helper.GetExecutionPath() + "container-info.json");
+            WClient.DownloadFile(repositoryContainerInfoFileUrl, helper.GetExecutionPath() + "container-info.json");
+        }
+
+        public void DownloadWebSite(string repositoryContainerWebsiteZipUrl, string outputFolderPath)
+        {
+            WClient.DownloadFile(repositoryContainerWebsiteZipUrl, outputFolderPath);
         }
 
         public void CleanTmpFiles()
