@@ -25,7 +25,6 @@ namespace ContainerInstaller.Models
             {
                 userChoiceKey = value;
                 OnPropertyChanged("UserChoiceKey");
-                Console.WriteLine(UserChoiceKey);
             }
         }
 
@@ -40,7 +39,6 @@ namespace ContainerInstaller.Models
                 userChoicevalue = value;
                 OnPropertyChanged("UserChoiceValue");
                 FindAndReplaceValue(UserChoiceValue);
-                Console.WriteLine(this.userChoiceKey);
             }
         }
 
@@ -67,7 +65,6 @@ namespace ContainerInstaller.Models
                 if(userChoice.userChoiceKey == this.userChoiceKey)
                 {
                     userChoice.userChoicevalue = value;
-                    Console.WriteLine("WE are here");
                 }
             }
         }

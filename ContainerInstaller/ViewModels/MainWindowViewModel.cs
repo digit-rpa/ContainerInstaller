@@ -114,12 +114,8 @@ namespace ContainerInstaller.ViewModels
                     // Unzip project
                     ZipFile.ExtractToDirectory(helper.GetExecutionPath() + "master.zip", helper.GetExecutionPath() + "workfolder");
 
-                    Console.WriteLine("Base exe path: " + helper.GetExecutionPath());
-
                     foreach(string directory in Directory.EnumerateDirectories(helper.GetExecutionPath() + "workfolder"))
                     {
-                        Console.WriteLine("Directory to move: " + directory);
-                        Console.WriteLine("Destination path: " + dockerComposeFilesBasePath);
                         Directory.Move(directory, dockerComposeFilesBasePath);
                         
                     }
@@ -129,8 +125,6 @@ namespace ContainerInstaller.ViewModels
                     
                     // We need to move .env.example to .evn
                     File.Move(dockerComposeFilesBasePath + ".env.example", dockerComposeFilesBasePath + ".env");
-
-                    Console.WriteLine("VALUE: " + userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString());
 
                     if (!String.IsNullOrEmpty(userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString()))
                     {
@@ -153,7 +147,6 @@ namespace ContainerInstaller.ViewModels
                 foreach (UserChoice userChoice in userChoices)
                 {
                     dockerComposeFile.Options.Add(userChoice.UserChoiceKey, userChoice.UserChoiceValue);
-                    Console.WriteLine(userChoice.UserChoiceValue);
                 }
 
                 // If we have installation script to execute after container is running
@@ -166,6 +159,17 @@ namespace ContainerInstaller.ViewModels
                     Console.WriteLine(e);
                 }
 
+                // If the container is using external network to communicate with other containers
+                bool usingExternalNetwork = false;
+                try
+                {
+                    usingExternalNetwork = containerInfo["using-external-network"];
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
                 dockerComposeFile.DownloadDockerComposeTemplate(containers[choosenContainer] + "docker-compose.yml");
                 dockerComposeFile.RemapDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
                                 
@@ -174,6 +178,13 @@ namespace ContainerInstaller.ViewModels
                 // The path to where this docker-compose.yml file should be executed (maybe copied?) 
                 // Should come from user input
                 string command = "/K cd " + dockerComposeFilesBasePath + " && ";
+
+                // If the container is using external network, we setup external network "web"
+                if (usingExternalNetwork)
+                {
+                    command += "docker network create web 2> nul & ";
+                }
+
                 command += "docker-compose up -d && ";
                 
                 if(!String.IsNullOrEmpty(installationScript))

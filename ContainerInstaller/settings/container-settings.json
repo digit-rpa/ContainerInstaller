@@ -11,6 +11,10 @@
     {
       "repository-container-folder-name": "Password handler",
       "repository-container-url": "https://raw.githubusercontent.com/digit-rpa/docker-compose-templates/master/Password-handler/"
+    },
+    {
+      "repository-container-folder-name": "Portainer",
+      "repository-container-url": "https://raw.githubusercontent.com/digit-rpa/docker-compose-templates/master/Portainer/"
     }
   ]
 }
