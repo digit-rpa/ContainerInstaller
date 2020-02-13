@@ -41,9 +41,9 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
-        <ContentControl Visibility="{Binding }">
-            <Views:SetupPage  Visibility="Collapsed"></Views:SetupPage>
-        </ContentControl>
-        <Views:SetupPage></Views:SetupPage>
+        
+        <!-- THIS IS ACTUALLY WORKING WE JUST CANT SEE WHAT THE OUTPUT WOULD BE IN EDITOR-->
+        <ContentControl Content="{Binding CurrentPage}" />
+        
     </StackPanel>
 </Window>

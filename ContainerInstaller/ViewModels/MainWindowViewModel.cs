@@ -1,5 +1,6 @@
 ﻿using ContainerInstaller.Common;
 using ContainerInstaller.Models;
+using ContainerInstaller.Views;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ContainerInstaller.ViewModels
@@ -18,6 +20,9 @@ namespace ContainerInstaller.ViewModels
 
     class MainWindowViewModel : ViewModelBase
     {
+        // This will define what page we are currently on
+        UserControl currentPage = new UserControl();
+
         // List of containers that this program is able to automatically setup
         Dictionary<string, string> containers = new Dictionary<string, string>();
 
@@ -44,6 +49,8 @@ namespace ContainerInstaller.ViewModels
         // Constructor
         public MainWindowViewModel() {
 
+            CurrentPage = new SetupPage();
+                       
             helper = new Helper();
 
             // Reading container settings (where is repository foreach container located, and the name of the container choice)
@@ -74,11 +81,6 @@ namespace ContainerInstaller.ViewModels
             {
                 HealthState = "Error please start Docker for Windows..";
             }
-        }
-
-        private void PrepareContainerView(dynamic containerSettings)
-        {
-
         }
 
         private void SetupContainer(object obj)
@@ -257,6 +259,8 @@ namespace ContainerInstaller.ViewModels
                 choosenContainer = value;
                 OnPropertyChanged("ChoosenContainer");
                 UpdateUserChoices();
+                // TEST
+                CurrentPage = new ExamplePage();
             }
         }
 
@@ -301,6 +305,20 @@ namespace ContainerInstaller.ViewModels
             set
             {
                 userChoices = value;
+            }
+        }
+
+        
+        public UserControl CurrentPage
+        {
+            get
+            {
+                return currentPage;
+            }
+            set
+            {
+                currentPage = value;
+                OnPropertyChanged("CurrentPage");
             }
         }
     }
