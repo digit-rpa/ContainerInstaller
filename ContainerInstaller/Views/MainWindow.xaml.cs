@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ContainerInstaller.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,7 +24,18 @@ namespace ContainerInstaller
     {
         public MainWindow()
         {
+            
             InitializeComponent();
+
+            // If first time running program on this host, 
+            // Ask user if they want to setup environment
+            PageContentControl.Content = new SetupView();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            // when setup is done, we want to navigate user to Container installer view
+            PageContentControl.Content = new ContainerInstallerView();
         }
     }
 }

@@ -12,38 +12,15 @@
         <ViewModels:MainWindowViewModel/>
     </Window.DataContext>
     <StackPanel>
-        <Grid>
-            <StackPanel>
-                <TextBlock Text="{Binding HealthState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <StackPanel>
-                    <ComboBox ItemsSource="{Binding Containers.Keys}" x:Name="containerChoice" SelectedItem="{Binding ChoosenContainer, Mode=TwoWay}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <ComboBoxItem Content="{Binding Mode=OneWay}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    <StackPanel>
-                        <ListBox
-                            ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                            SelectedValuePath="Value" >
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding UserChoiceKey}" />
-                                        <TextBox Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </StackPanel>
-                    <Button Content="Setup choosen container" CommandParameter="{Binding SelectedItem, ElementName=containerChoice}" Command="{Binding SetupContainerCommand}" />
-                </StackPanel>
-            </StackPanel>
-        </Grid>
         
+        <!-- SHOULD WE HAVE THE BUTTON INSIDE SETUP VIEW??? -->
+        
+        <!-- Navigating to ContainerInstallerView when done setup environment -->
+        <Button Click="Button_Click">
+            <Button.Content>Setup</Button.Content>
+        </Button>
         <!-- THIS IS ACTUALLY WORKING WE JUST CANT SEE WHAT THE OUTPUT WOULD BE IN EDITOR-->
-        <ContentControl Content="{Binding CurrentPage}" />
+        <ContentControl x:Name="PageContentControl" />
         
     </StackPanel>
 </Window>

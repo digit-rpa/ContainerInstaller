@@ -60,7 +60,7 @@ namespace ContainerInstaller.Models
 
         public void FindAndReplaceValue(string value)
         {
-            foreach (UserChoice userChoice in MainWindowViewModel.userChoices)
+            foreach (UserChoice userChoice in ContainerInstallerViewModel.userChoices)
             {
                 if(userChoice.userChoiceKey == this.userChoiceKey)
                 {

@@ -1,0 +1,42 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ContainerInstaller.Views"
+             xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels" x:Class="ContainerInstaller.Views.ContainerInstallerView"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <ViewModels:ContainerInstallerViewModel/>
+    </UserControl.DataContext>
+    <Grid>
+        <StackPanel>
+            <TextBlock Text="{Binding HealthState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel>
+                <ComboBox ItemsSource="{Binding Containers.Keys}" x:Name="containerChoice" SelectedItem="{Binding ChoosenContainer, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <ComboBoxItem Content="{Binding Mode=OneWay}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <StackPanel>
+                    <ListBox
+                            ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            SelectedValuePath="Value" >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding UserChoiceKey}" />
+                                    <TextBox Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+                <Button Content="Setup choosen container" CommandParameter="{Binding SelectedItem, ElementName=containerChoice}" Command="{Binding SetupContainerCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
