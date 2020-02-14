@@ -1,4 +1,14 @@
 {
+  "setup-dependencies": [
+    {
+        "dependency-name": "Docker for Windows",
+        "dependency-information-link": "https://docs.docker.com/docker-for-windows/install/"
+    },
+    {
+        "dependency-name": "Composer",
+        "dependency-information-link": "https://getcomposer.org/download/"
+    }
+  ],
   "container-choices": [
     {
       "repository-container-folder-name": "Kibana",

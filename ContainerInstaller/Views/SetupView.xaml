@@ -19,11 +19,47 @@
             When the text i changed, we will navigate inside of the code behind
             -->
             <TextBox x:Name="InstallationStatus" Text="{Binding SetupSucceeded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed" TextChanged="InstallationStatus_TextChanged"/>
+
+            <TextBlock>
+                Welcome to the Container Installer. 
+                <LineBreak/>
+                We will now take you through the setup. 
+                <LineBreak/>
+            </TextBlock>
+
+            <!-- Dependency Information -->
+            <StackPanel>
+                <!-- Information header -->
+                <TextBlock>
+                    Following dependencies are needed:
+                    <LineBreak/>
+                </TextBlock>
+                <ListView ItemsSource="{Binding Dependencies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Key}" />
+                                <TextBlock Text=": " />
+                                <Button Content="{Binding Value}"  />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBlock>
+                    <LineBreak/>
+                    You have to install these dependencies before this program will work as intended.
+                    <LineBreak/>
+                    IMPORTANT: Also, after Docker for Windows installation completed, please go inside Docker for windows settings and provide shared drive.
+                    <LineBreak/>
+                </TextBlock>
+            </StackPanel>
             
-            <Label>Container installation path:</Label>
+            <Label>Choose container installation path:</Label>
             <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock>
+                All Containers will be stored here with their docker-compose.yml file.
+            </TextBlock>
             <Button Command="{Binding ChooseContainerInstallationPathCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >Choose installation path</Button>
-            <!-- DO WE NEED COMPOSER INSTALLATION PATH DEFINED HERE ? -->
             
             <!-- Navigating to ContainerInstallerView when done setup environment -->
             <Button Command="{Binding StartSetupCommand}">Setup</Button>

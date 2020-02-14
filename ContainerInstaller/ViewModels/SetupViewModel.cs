@@ -19,6 +19,7 @@ namespace ContainerInstaller.ViewModels
         private string containerInstallationPath;
         private Helper helper;
         private bool setupSucceeded = false;
+        private Dictionary<string, string> dependencies = new Dictionary<string, string>();
 
         // Commands
         private ICommand startSetupCommand;
@@ -28,6 +29,16 @@ namespace ContainerInstaller.ViewModels
         {
             // Instantiating helper
             helper = new Helper();
+            
+            // Getting program dependencies to show on the setup startup page
+            dynamic programDependencies = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json")["setup-dependencies"];
+
+            foreach(dynamic dependency in programDependencies)
+            {
+                string dependencyName = dependency["dependency-name"];
+                string dependencyInformationLink = dependency["dependency-information-link"];
+                Dependencies.Add(dependencyName, dependencyInformationLink);
+            }
 
             // Lets find out if we already are setup
             // If we are, we just sent the user to container intall view
@@ -101,5 +112,17 @@ namespace ContainerInstaller.ViewModels
         }
 
         public ICommand ChooseContainerInstallationPathCommand { get => chooseContainerInstallationPathCommand; set => chooseContainerInstallationPathCommand = value; }
+        public Dictionary<string, string> Dependencies
+        {
+            get 
+            { 
+                return dependencies; 
+            }
+            set 
+            { 
+                dependencies = value;
+                OnPropertyChanged("Dependencies");
+            }
+        }
     }
 }
