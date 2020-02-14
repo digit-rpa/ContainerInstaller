@@ -72,14 +72,13 @@ namespace ContainerInstaller.ViewModels
             try
             {
                 File.WriteAllText(helper.GetExecutionPath() + "setup-settings.json", JsonConvert.SerializeObject(settings));
+                SetupSucceeded = true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 SetupSucceeded = false;
             }
-
-            SetupSucceeded = true;
 
             Console.WriteLine("Setting up stuff");
         }
