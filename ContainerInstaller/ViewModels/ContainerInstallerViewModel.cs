@@ -19,7 +19,6 @@ namespace ContainerInstaller.ViewModels
 {
     class ContainerInstallerViewModel : ViewModelBase
     {
-
         // We need to know if Docker for windows is up and running before we can perform any actions
         bool dockerForWindowsIsRunning;
 
@@ -36,7 +35,7 @@ namespace ContainerInstaller.ViewModels
 
         string choosenContainer;
 
-        SettingsReader settingsReader;
+        private dynamic setupSettings;
 
         Helper helper;
 
@@ -48,9 +47,10 @@ namespace ContainerInstaller.ViewModels
             helper = new Helper();
 
             // Reading container settings (where is repository foreach container located, and the name of the container choice)
-            settingsReader = new SettingsReader();
-            dynamic containerSettings = settingsReader.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
-
+            dynamic containerSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
+            // Setup settings is where all of the program settings are placed
+            setupSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "setup-settings.json");
+            
             // Wich Containers is there to choose from by the user?
             foreach (dynamic container in containerSettings["container-choices"])
             {
@@ -62,7 +62,6 @@ namespace ContainerInstaller.ViewModels
 
             // Relay commands 
             SetupContainerCommand = new RelayCommand(SetupContainer, param => true);
-
 
             HealthState = "Checking state...";
 
@@ -94,7 +93,7 @@ namespace ContainerInstaller.ViewModels
             {
 
                 // This should be the users who sets where to store the actual "new" docker-compose file"
-                dockerComposeFilesBasePath = @"C:\docker-production\" + choosenContainer + @"\";
+                dockerComposeFilesBasePath = setupSettings["ContainerInstallationPath"] + @"\" + choosenContainer + @"\";
 
                 // TESTING THESE VALUES SHOULD BE COMMING FROM THE USER
                 DockerComposeFile dockerComposeFile = new DockerComposeFile();
@@ -265,7 +264,7 @@ namespace ContainerInstaller.ViewModels
         {
             DockerComposeFile tmpFile = new DockerComposeFile();
             tmpFile.DownloadContainerInfo(containers[choosenContainer] + "container-info.json");
-            dynamic containerOptions = settingsReader.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
+            dynamic containerOptions = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
 
             return containerOptions;
         }

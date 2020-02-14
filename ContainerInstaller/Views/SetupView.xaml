@@ -7,7 +7,7 @@
              xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels"
              xmlns:system="clr-namespace:System;assembly=mscorlib" x:Class="ContainerInstaller.Views.SetupView"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Style="{StaticResource GeneralPageStyle}">
+             d:DesignHeight="450" d:DesignWidth="800" Style="{StaticResource GeneralPageStyle}" Loaded="UserControl_Loaded">
     <UserControl.DataContext>
         <ViewModels:SetupViewModel/>
     </UserControl.DataContext>
@@ -22,7 +22,7 @@
             
             <Label>Container installation path:</Label>
             <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            
+            <Button Command="{Binding ChooseContainerInstallationPathCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >Choose installation path</Button>
             <!-- DO WE NEED COMPOSER INSTALLATION PATH DEFINED HERE ? -->
             
             <!-- Navigating to ContainerInstallerView when done setup environment -->
