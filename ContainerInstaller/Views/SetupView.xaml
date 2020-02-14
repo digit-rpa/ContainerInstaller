@@ -23,8 +23,6 @@
             <TextBlock>
                 Welcome to the Container Installer. 
                 <LineBreak/>
-                We will now take you through the setup. 
-                <LineBreak/>
             </TextBlock>
 
             <!-- Dependency Information -->
@@ -47,20 +45,31 @@
                 </ListView>
                 <TextBlock>
                     <LineBreak/>
-                    You have to install these dependencies before this program will work as intended.
+                    You have to install these dependencies for this program to run as intended.
                     <LineBreak/>
-                    IMPORTANT: Also, after Docker for Windows installation completed, please go inside Docker for windows settings and provide shared drive.
+                    IMPORTANT: Also, after Docker for Windows installation is completed, please go inside Docker for windows settings and provide shared drive.
                     <LineBreak/>
                 </TextBlock>
             </StackPanel>
             
             <Label>Choose container installation path:</Label>
-            <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Focusable="False" IsEnabled="False" />
             <TextBlock>
                 All Containers will be stored here with their docker-compose.yml file.
             </TextBlock>
             <Button Command="{Binding ChooseContainerInstallationPathCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >Choose installation path</Button>
-            
+
+            <!-- REMEBER TO SET THIS UP IN THE BACKEND -->
+            <StackPanel>
+                <CheckBox Content="Auto install Nginx?" />
+                <CheckBox Content="Auto install Portainer?"/>
+            </StackPanel>
+            <TextBlock>
+                Nginx: If you want to use hostnames for your websites Nginx will give you that opportunity.
+                <LineBreak/>
+                Portainer: will provide you with an overview of all installed containers.
+            </TextBlock>
+
             <!-- Navigating to ContainerInstallerView when done setup environment -->
             <Button Command="{Binding StartSetupCommand}">Setup</Button>
         </StackPanel>
