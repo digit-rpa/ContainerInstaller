@@ -13,14 +13,8 @@
     </Window.DataContext>
     <StackPanel>
         
-        <!-- SHOULD WE HAVE THE BUTTON INSIDE SETUP VIEW??? -->
-        
-        <!-- Navigating to ContainerInstallerView when done setup environment -->
-        <Button Click="Button_Click">
-            <Button.Content>Setup</Button.Content>
-        </Button>
         <!-- THIS IS ACTUALLY WORKING WE JUST CANT SEE WHAT THE OUTPUT WOULD BE IN EDITOR-->
-        <ContentControl x:Name="PageContentControl" />
+        <ContentControl x:Name="PageContentControl" Content="Main Dynamic Content Area"/>
         
     </StackPanel>
 </Window>

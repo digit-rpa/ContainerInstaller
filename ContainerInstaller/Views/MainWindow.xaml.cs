@@ -22,20 +22,18 @@ namespace ContainerInstaller
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static ContentControl pageContentControl;
+
         public MainWindow()
         {
-            
             InitializeComponent();
+
+            // Setting the static content control to the pageContentControl of the view
+            pageContentControl = PageContentControl;
 
             // If first time running program on this host, 
             // Ask user if they want to setup environment
-            PageContentControl.Content = new SetupView();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            // when setup is done, we want to navigate user to Container installer view
-            PageContentControl.Content = new ContainerInstallerView();
+            pageContentControl.Content = new SetupView();
         }
     }
 }

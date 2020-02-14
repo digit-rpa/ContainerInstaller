@@ -24,5 +24,11 @@ namespace ContainerInstaller.Views
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Pressed");
+            MainWindow.pageContentControl.Content = new ContainerInstallerView();
+        }
     }
 }
