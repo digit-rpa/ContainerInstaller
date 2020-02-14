@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ContainerInstaller.Views"
-             xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels" x:Class="ContainerInstaller.Views.SetupView"
+             xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels"
+             xmlns:system="clr-namespace:System;assembly=mscorlib" x:Class="ContainerInstaller.Views.SetupView"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Style="{StaticResource GeneralPageStyle}">
     <UserControl.DataContext>
@@ -13,9 +14,19 @@
     <Grid>
         <!-- Setup form wich will be used to make host prepared for Container installations -->
         <StackPanel>
+            <!-- 
+            Just used to get status of SetupSucceeded 
+            When the text i changed, we will navigate inside of the code behind
+            -->
+            <TextBox x:Name="InstallationStatus" Text="{Binding SetupSucceeded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed" TextChanged="InstallationStatus_TextChanged"/>
+            
+            <Label>Container installation path:</Label>
+            <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            
+            <!-- DO WE NEED COMPOSER INSTALLATION PATH DEFINED HERE ? -->
             
             <!-- Navigating to ContainerInstallerView when done setup environment -->
-            <Button Click="Button_Click" >Setup</Button>
+            <Button Command="{Binding StartSetupCommand}">Setup</Button>
         </StackPanel>
     </Grid>
 </UserControl>

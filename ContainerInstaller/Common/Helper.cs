@@ -21,5 +21,11 @@ namespace ContainerInstaller.Common
 
         }
 
+        // Writting to files
+        public void WriteSetupSettingsToFile()
+        {
+
+        }
+
     }
 }

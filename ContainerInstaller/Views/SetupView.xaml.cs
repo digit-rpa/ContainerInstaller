@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ContainerInstaller.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,10 +26,13 @@ namespace ContainerInstaller.Views
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void InstallationStatus_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Console.WriteLine("Pressed");
-            MainWindow.pageContentControl.Content = new ContainerInstallerView();
+            // Lets make sure setup is done with no errors before navigating
+            if (bool.Parse(this.InstallationStatus.Text))
+            {
+                MainWindow.pageContentControl.Content = new ContainerInstallerView();
+            }
         }
     }
 }
