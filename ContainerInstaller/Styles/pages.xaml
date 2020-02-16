@@ -1,16 +1,78 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
                     xmlns:local="clr-namespace:ContainerInstaller.Styles">
+                
 
-    <SolidColorBrush x:Key="ApplicationBackgroundColor" Color="AliceBlue" />
+    <SolidColorBrush x:Key="AppBackgroundColor" Color="#408CC1" />
+    <SolidColorBrush x:Key="AppTextColor" Color="White" />
+    <system:Double x:Key="AppHeadlineFontSize">20</system:Double>
+    <system:Double x:Key="AppFontSize">14</system:Double>
+    <system:Double x:Key="AppMinHeight">800</system:Double>
+    <system:Double x:Key="AppMinWidth">900</system:Double>
+
+    <Style TargetType="Window">
+        <Setter Property="SizeToContent" Value="WidthAndHeight" />
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="FontSize" Value="{StaticResource AppFontSize}" />
+        <Setter Property="MinHeight" Value="{StaticResource AppMinHeight}" />
+        <Setter Property="MinWidth" Value="{StaticResource AppMinWidth}" />
+    </Style>
 
     <!-- General style for all pages -->
     <Style x:Key="GeneralPageStyle" TargetType="UserControl">
-        <Setter Property="Background" Value="{StaticResource ApplicationBackgroundColor}" />
-    </Style>
-
-    <Style TargetType="Window">
-        <Setter Property="Background" Value="{StaticResource ApplicationBackgroundColor}" />
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="FontSize" Value="{StaticResource AppFontSize}" />
     </Style>
     
+    <!-- General textblock style -->
+    <Style TargetType="TextBlock">
+        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+    </Style>
+    
+    <!-- 
+    Stackpanel groupings 
+    The outer element that wraps
+    -->
+    <Style x:Key="StackGroup" TargetType="StackPanel">
+        <Setter Property="Margin" Value="10" />
+    </Style>
+    
+    <!-- Headline styles -->
+    <Style x:Key="Headline" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource AppHeadlineFontSize}" />
+        <Setter Property="Margin" Value="0,10,0,10" />
+    </Style>
+
+    <!-- General buttons style -->
+    <Style TargetType="Button">
+        <Setter Property="Width" Value="200" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="Background" Value="Gray" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+    </Style>
+    
+    <!-- General list style -->
+    <Style x:Key="ListViewItem" TargetType="TextBlock">
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+
+    <!-- General list style -->
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    
+    <!-- Bullet points -->
+    <Style x:Key="BulletPoint" TargetType="Image" >
+        <Setter Property="MaxWidth" Value="15" />
+        <Setter Property="Margin" Value="10,0,10,0" />
+    </Style>
+
 </ResourceDictionary>
