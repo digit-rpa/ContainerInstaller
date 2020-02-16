@@ -7,23 +7,26 @@
              xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels"
              xmlns:system="clr-namespace:System;assembly=mscorlib" x:Class="ContainerInstaller.Views.SetupView"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Style="{StaticResource GeneralPageStyle}" Loaded="UserControl_Loaded">
+             d:DesignWidth="800" Style="{StaticResource GeneralPageStyle}" Loaded="UserControl_Loaded">
     <UserControl.DataContext>
         <ViewModels:SetupViewModel/>
     </UserControl.DataContext>
+    <!-- Setup form wich will be used to make host prepared for Container installations -->
     <Grid>
-        <!-- Setup form wich will be used to make host prepared for Container installations -->
         <StackPanel>
             <!-- 
             Just used to get status of SetupSucceeded 
             When the text i changed, we will navigate inside of the code behind
             -->
             <TextBox x:Name="InstallationStatus" Text="{Binding SetupSucceeded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed" TextChanged="InstallationStatus_TextChanged"/>
-
-            <TextBlock>
-                Welcome to the Container Installer. 
-                <LineBreak/>
-            </TextBlock>
+        
+            <!-- Welcome message -->
+            <StackPanel>
+                <TextBlock>
+                    Welcome to the Container Installer. 
+                    <LineBreak/>
+                </TextBlock>
+            </StackPanel>
 
             <!-- Dependency Information -->
             <StackPanel>
@@ -51,27 +54,47 @@
                     <LineBreak/>
                 </TextBlock>
             </StackPanel>
-            
-            <Label>Choose container installation path:</Label>
-            <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Focusable="False" IsEnabled="False" />
-            <TextBlock>
-                All Containers will be stored here with their docker-compose.yml file.
-            </TextBlock>
-            <Button Command="{Binding ChooseContainerInstallationPathCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >Choose installation path</Button>
-
-            <!-- REMEBER TO SET THIS UP IN THE BACKEND -->
+        
+            <!-- Choose Containers installation path -->
             <StackPanel>
+                <Label>Choose container installation path:</Label>
+                <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Focusable="False" IsEnabled="False" />
+                <TextBlock>
+                    All Containers will be stored here with their docker-compose.yml file.
+                </TextBlock>
+                <Button Command="{Binding ChooseContainerInstallationPathCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >Choose installation path</Button>
+            </StackPanel>
+        
+            <!-- REMEBER TO SET THIS UP IN THE BACKEND -->
+            <!--<StackPanel>
                 <CheckBox Content="Auto install Nginx?" />
                 <CheckBox Content="Auto install Portainer?"/>
-            </StackPanel>
-            <TextBlock>
-                Nginx: If you want to use hostnames for your websites Nginx will give you that opportunity.
-                <LineBreak/>
-                Portainer: will provide you with an overview of all installed containers.
-            </TextBlock>
+            </StackPanel>-->
 
-            <!-- Navigating to ContainerInstallerView when done setup environment -->
+            <!-- Important user information (Guidelines) -->
+            <StackPanel>
+                <TextBlock>
+                    <LineBreak/>
+                    Docker environment information.
+                    <LineBreak/>
+                    <LineBreak/>
+                    If you want to use hostnames to interact with your Docker containers install the (Nginx) container right after setup.
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical">
+                <TextBlock>
+                    If you want an overview of all your containers install the (Portainer) container right after setup.
+                    <LineBreak/>
+                </TextBlock>
+                
+                <!-- Portainer teaser image -->
+                <Image Style="{StaticResource TeaserImage}" Source="/Images/portainer-teaser-img.png" />
+            </StackPanel>
+            <!-- Setup button -->
+            <!-- NOTE: Navigating to ContainerInstallerView when done setup environment -->
             <Button Command="{Binding StartSetupCommand}">Setup</Button>
         </StackPanel>
+        
     </Grid>
 </UserControl>

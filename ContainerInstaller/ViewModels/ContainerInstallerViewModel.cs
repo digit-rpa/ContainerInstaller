@@ -250,6 +250,11 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
+        private void ReplaceEnvironmentVariables()
+        {
+
+        }
+
         // Getters and Setters
         public Dictionary<string, string> Containers
         {

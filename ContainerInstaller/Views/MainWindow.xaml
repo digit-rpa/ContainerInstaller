@@ -7,7 +7,7 @@
         xmlns:Views="clr-namespace:ContainerInstaller.Views"
         xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels" x:Class="ContainerInstaller.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Width="800" Style="{StaticResource {x:Type Window}}">
     <Window.DataContext>
         <ViewModels:MainWindowViewModel/>
     </Window.DataContext>
