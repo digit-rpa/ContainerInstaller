@@ -26,6 +26,7 @@ namespace ContainerInstaller.ViewModels
         Dictionary<string, string> containers = new Dictionary<string, string>();
 
         Dictionary<string, string> containerOptionsUserInput = new Dictionary<string, string>();
+        
         public static ObservableCollection<UserChoice> userChoices = new ObservableCollection<UserChoice>();
 
         // We want to inform the user of the current state of operation
@@ -217,6 +218,38 @@ namespace ContainerInstaller.ViewModels
             return false;
         }
 
+        private dynamic ReadContainerInfoFile()
+        {
+            DockerComposeFile tmpFile = new DockerComposeFile();
+            tmpFile.DownloadContainerInfo(containers[choosenContainer] + "container-info.json");
+            dynamic containerOptions = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
+
+            return containerOptions;
+        }
+
+        public void UpdateUserChoices()
+        {
+            dynamic containerOptions = ReadContainerInfoFile();
+
+            userChoices.Clear();
+
+            foreach (dynamic options in containerOptions["options"])
+            {
+
+                foreach (JProperty option in options.Properties())
+                {
+                    // Adding userchoices to frontend
+                    userChoices.Add(
+                        new UserChoice
+                        {
+                            UserChoiceKey = option.Name,
+                            UserChoiceValue = option.Value.ToString()
+                        }
+                    );
+                }
+            }
+        }
+
         // Getters and Setters
         public Dictionary<string, string> Containers
         {
@@ -257,38 +290,6 @@ namespace ContainerInstaller.ViewModels
                 choosenContainer = value;
                 OnPropertyChanged("ChoosenContainer");
                 UpdateUserChoices();
-            }
-        }
-
-        private dynamic ReadContainerInfoFile()
-        {
-            DockerComposeFile tmpFile = new DockerComposeFile();
-            tmpFile.DownloadContainerInfo(containers[choosenContainer] + "container-info.json");
-            dynamic containerOptions = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "container-info.json");
-
-            return containerOptions;
-        }
-
-        public void UpdateUserChoices()
-        {
-            dynamic containerOptions = ReadContainerInfoFile();
-
-            userChoices.Clear();
-
-            foreach (dynamic options in containerOptions["options"])
-            {
-
-                foreach (JProperty option in options.Properties())
-                {
-                    // Adding userchoices to frontend
-                    userChoices.Add(
-                        new UserChoice
-                        {
-                            UserChoiceKey = option.Name,
-                            UserChoiceValue = option.Value.ToString()
-                        }
-                    );
-                }
             }
         }
 
