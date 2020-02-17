@@ -75,4 +75,54 @@
         <Setter Property="Margin" Value="10,0,10,0" />
     </Style>
 
+    <!-- Combobox style -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Width" Value="200" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Margin" Value="0,20,10,20" />
+    </Style>
+    
+    <!-- Listbox style -->
+    <Style TargetType="ListBox">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="Focusable" Value="False" />
+    </Style>
+
+    <!-- Listbox style -->
+    <Style TargetType="ListBoxItem">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                    <Border BorderBrush="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" >
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource AppBackgroundColor}" />
+                            <Setter Property="Foreground" Value="{StaticResource AppTextColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="UserChoice" TargetType="TextBlock">
+        <Setter Property="Margin" Value="10,10,10,10" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="MinWidth" Value="300" />
+    </Style>
+
+    <Style x:Key="UserChoiceInput" TargetType="TextBox">
+        <Setter Property="Margin" Value="10,10,10,10" />
+    </Style>
+
 </ResourceDictionary>

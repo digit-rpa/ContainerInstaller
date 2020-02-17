@@ -12,8 +12,8 @@
     </UserControl.DataContext>
     <Grid>
         <StackPanel>
-            <TextBlock Text="{Binding HealthState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <StackPanel>
+            <TextBlock Text="{Binding HealthState, FallbackValue=Ready, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Style="{StaticResource StackGroup}">
                 <ComboBox ItemsSource="{Binding Containers.Keys}" x:Name="containerChoice" SelectedItem="{Binding ChoosenContainer, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -21,20 +21,41 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+                
+                <!-- Docker compose file variables -->
                 <StackPanel>
+                    <TextBlock Style="{StaticResource Headline}">Docker compose file variables</TextBlock>
                     <ListBox
                             ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             SelectedValuePath="Value" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding UserChoiceKey}" />
-                                    <TextBox Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
-                                </StackPanel>
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource UserChoice}" Text="{Binding UserChoiceKey}" />
+                                    <TextBox Style="{StaticResource UserChoiceInput}" Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
+                                </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </StackPanel>
+                
+                <!-- Environment file variables -->
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Headline}">Environment file variables</TextBlock>
+                    <ListBox
+                            ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            SelectedValuePath="Value" >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource UserChoice}" Text="{Binding UserChoiceKey}" />
+                                    <TextBox Style="{StaticResource UserChoiceInput}" Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+                
                 <Button Content="Setup choosen container" CommandParameter="{Binding SelectedItem, ElementName=containerChoice}" Command="{Binding SetupContainerCommand}" />
             </StackPanel>
         </StackPanel>
