@@ -22,38 +22,49 @@ namespace ContainerInstaller.ViewModels
         // We need to know if Docker for windows is up and running before we can perform any actions
         bool dockerForWindowsIsRunning;
 
-        // List of containers that this program is able to automatically setup
+        // List of containers that this program is able to automatically setup.
+        // The available container choices are listed inside settings/settings.json.
         Dictionary<string, string> containers = new Dictionary<string, string>();
 
-        Dictionary<string, string> containerOptionsUserInput = new Dictionary<string, string>();
-
-        public static ObservableCollection<UserChoice> userChoicesDockerFile = new ObservableCollection<UserChoice>();
+        // Some containers (container choices) might have user input options.
+        // We don´t demand the options to be pressent in container-info.json
+        // but we will handle them if they are.
+        private static ObservableCollection<UserChoice> userChoicesDockerFile = new ObservableCollection<UserChoice>();
         private static ObservableCollection<UserChoice> userChoicesEnvironmentFile = new ObservableCollection<UserChoice>();
 
         // We want to inform the user of the current state of operation
+        // healthState is the "user freindly string" which informs the user if the program has all of its dependencies (Docker for Windows, Composer)
+        // And are ready to create/setup containers.
         string healthState;
 
+        // The base installation path where all docker container installed by this program is located.
         string dockerComposeFilesBasePath;
 
+        // The container name of the user choosen container to install/setup.
         string choosenContainer;
 
+        // setupSettings is holding settings that the user selected on first program run.
         private dynamic setupSettings;
 
-        Helper helper;
-
+        // Helper holds methods that could be useful across the application.
+        Helper helper = new Helper();
+        
         // Commands
         private ICommand setupContainerCommand;
 
         public ContainerInstallerViewModel()
         {
-            helper = new Helper();
+            // Relay commands 
+            SetupContainerCommand = new RelayCommand(SetupContainer, param => true);
 
-            // Reading container settings (where is repository foreach container located, and the name of the container choice)
+            // Reading container settings 
+            // Where is raw template file of docker-compose.yml and the container-info.json located foreach container choice
             dynamic containerSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
-            // Setup settings is where all of the program settings are placed
+            
+            // Reading setup-settings.json file into dynamic variable used in SetupContainer method.
             setupSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "setup-settings.json");
 
-            // Wich Containers is there to choose from by the user?
+            // Reading containers that the user could choose from and adding them to the UI - Dictionary<string, string> containers
             foreach (dynamic container in containerSettings["container-choices"])
             {
                 string containerName = container["repository-container-folder-name"];
@@ -62,12 +73,11 @@ namespace ContainerInstaller.ViewModels
                 containers.Add(containerName, containerRepositoryUrl);
             }
 
-            // Relay commands 
-            SetupContainerCommand = new RelayCommand(SetupContainer, param => true);
-
+            // Default value for the user.
             HealthState = "Checking state...";
 
             // Is Docker running?
+            // Later we will check if Composer is installed.
             if (CheckProgramIsRunning("Docker Desktop"))
             {
                 HealthState = "Ready to work";
@@ -79,96 +89,82 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
+        // Executed when user is pressing setup container button in the UI.
         private void SetupContainer(object obj)
         {
-            try
-            {
-                // Setting the choosen container value
-                choosenContainer = obj.ToString();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
+            // If the user has choosen a container to install
+            // And we have dockerForWindowsRunning we start setting up/installing the container
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
             {
 
-                // This should be the users who sets where to store the actual "new" docker-compose file"
+                // Setting the base path of Container installation placement.
                 dockerComposeFilesBasePath = setupSettings["ContainerInstallationPath"] + @"\" + choosenContainer + @"\";
 
-                // TESTING THESE VALUES SHOULD BE COMMING FROM THE USER
+                // Instantiating dockerComposeFile Class
+                // We use this to manipulate the docker-compose.yml template file.
                 DockerComposeFile dockerComposeFile = new DockerComposeFile();
                 dockerComposeFile.executionPath = helper.GetExecutionPath();
 
+                // Reading the container-info.yml file.
+                // Holds every information needed to install/setup the choosen container.
                 dynamic containerInfo = ReadContainerInfoFile();
 
-                // Maybe we have website zip url, if we have, then we download it to the container folder
+                // Maybe we have website zip url
+                // If it´s pressent we download from it
+                // And placing the downloaded file inside the container folder.
                 try
                 {
+                    // Getting the website url from container-info.json.
                     string websiteZipUrl = containerInfo["website-repository-zip"];
-                    // Only do this if we have website-zip as part of container-info.json
+
+                    // Downloading website.
                     dockerComposeFile.DownloadWebSite(websiteZipUrl, helper.GetExecutionPath() + "master.zip");
 
-                    // Unzip project
+                    // Unzip project.
                     ZipFile.ExtractToDirectory(helper.GetExecutionPath() + "master.zip", helper.GetExecutionPath() + "workfolder");
 
+                    // Move the unzipped website.
                     foreach (string directory in Directory.EnumerateDirectories(helper.GetExecutionPath() + "workfolder"))
                     {
                         Directory.Move(directory, dockerComposeFilesBasePath);
-
                     }
-                    // DELETE THE WORKFOLDER AND repos master zip
+
+                    // Deleting temporary files and folders.
                     Directory.Delete(helper.GetExecutionPath() + "workfolder");
                     File.Delete(helper.GetExecutionPath() + "master.zip");
 
-                    // We need to move .env.example to .evn
+                    // Moving .env.example to .evn.
                     File.Move(dockerComposeFilesBasePath + ".env.example", dockerComposeFilesBasePath + ".env");
 
-                    try { 
-                        string[] environmentFileLines = File.ReadAllLines(dockerComposeFilesBasePath + ".env");
-                        string[] environmentFileLinesWithReplacements = ReplaceEnvironmentVariables(environmentFileLines);
-                        // Emptying the .env file
-                        File.WriteAllText(dockerComposeFilesBasePath + ".env", string.Empty);
-                        // Inserting lines wich are replaced with users choices
-                        File.WriteAllLines(dockerComposeFilesBasePath + ".env", environmentFileLinesWithReplacements);
+                    // Replacing default values variables with userinput values.
+                    string[] environmentFileLines = File.ReadAllLines(dockerComposeFilesBasePath + ".env");
+                    string[] environmentFileLinesWithReplacements = ReplaceEnvironmentVariables(environmentFileLines);
 
-                        foreach(string line in environmentFileLinesWithReplacements)
-                        {
-                            Console.WriteLine("LINES: " + line);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-
-
-                    // INSTEAD OF THIS WE WILL GO THROUGH EACH LINE AND REPLACE ENV VARIABLES AS NEEDED
-                    /*if (!String.IsNullOrEmpty(userChoicesDockerFile.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString()))
-                    {
-                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "VIRTUAL_HOST=" + userChoicesDockerFile.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString() + " \r\n");
-                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "DB_ROOT_PASSWORD=" + userChoicesDockerFile.Single(x => x.UserChoiceKey == "DATABASE_ROOT_PASSWORD_VALUE").UserChoiceValue.ToString() + " \r\n");
-                    }*/
+                    // Emptying the .env file.
+                    File.WriteAllText(dockerComposeFilesBasePath + ".env", string.Empty);
+                    
+                    // Inserting lines wich are replaced with users choices.
+                    File.WriteAllLines(dockerComposeFilesBasePath + ".env", environmentFileLinesWithReplacements);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
 
-                // Create directory if not exists
+                // Create base installation directory if not exists.
                 if (!Directory.Exists(dockerComposeFilesBasePath))
                 {
                     Directory.CreateDirectory(dockerComposeFilesBasePath);
                 }
 
-                // Setting users choice
+                // Setting users choice which the user can choose from in the UI.
                 foreach (UserChoice userChoice in userChoicesDockerFile)
                 {
                     dockerComposeFile.Options.Add(userChoice.UserChoiceKey, userChoice.UserChoiceValue);
                 }
 
-                // If we have installation script to execute after container is running
+                // If we have path to installation script.
+                // Which should be executed after container is installed and running.
                 string installationScript = "";
                 try
                 {
@@ -179,7 +175,7 @@ namespace ContainerInstaller.ViewModels
                     Console.WriteLine(e);
                 }
 
-                // If the container is using external network to communicate with other containers
+                // If the container is using external network to communicate with other containers.
                 bool usingExternalNetwork = false;
                 try
                 {
@@ -190,55 +186,71 @@ namespace ContainerInstaller.ViewModels
                     Console.WriteLine(e);
                 }
 
+                // Downloading the docker-compose.yml template file.
                 dockerComposeFile.DownloadDockerComposeTemplate(containers[choosenContainer] + "docker-compose.yml");
+
+                // Remapping the docker-compose.yml file with user inputs.
                 dockerComposeFile.RemapDockerComposeTemplate(dockerComposeFilesBasePath + "docker-compose.yml");
 
+                // Removing temporary files
                 dockerComposeFile.CleanTmpFiles();
 
-                // The path to where this docker-compose.yml file should be executed (maybe copied?) 
-                // Should come from user input
+                // The path to where this docker-compose.yml file should be executed.
                 string command = "/K cd " + dockerComposeFilesBasePath + " && ";
 
-                // If the container is using external network, we setup external network "web"
+                // If the container is using external network, we setup external network "web".
                 if (usingExternalNetwork)
                 {
                     command += "docker network create web 2> nul & ";
                 }
 
+                // Setting up the container.
                 command += "docker-compose up -d && ";
 
+                // If installation script path is pressent.
+                // Run docker command to execute the script inside the running container.
                 if (!String.IsNullOrEmpty(installationScript))
                 {
                     command += "docker exec " + userChoicesDockerFile.Single(x => x.UserChoiceKey == "WEB_CONTAINER_NAME_VALUE").UserChoiceValue.ToString() + " php " + installationScript + " && ";
                 }
 
+                // Finish up
                 command += "timeout 15 && ";
                 command += "exit";
-
-                // Lets try to setup container by docker-compose.yml file inside CMD
-                Process cmd = new Process();
-                cmd.StartInfo.FileName = "cmd.exe";
-                cmd.StartInfo.Verb = "runas";
-                cmd.StartInfo.Arguments = command;
-                cmd.Start();
-
+                
+                // Lets try to setup container by docker-compose.yml file inside CMD.
+                try
+                { 
+                    Process cmd = new Process();
+                    cmd.StartInfo.FileName = "cmd.exe";
+                    cmd.StartInfo.Verb = "runas";
+                    cmd.StartInfo.Arguments = command;
+                    cmd.Start();
+                } catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
         private string[] ReplaceEnvironmentVariables(string[] environmentFileLines)
         {
+            // Temperary list holding lines from environment file.
+            // Default lines if not replaced by user defined variables.
             List<string> tmpStringList = new List<string>();
-            //string[] tmpStringArray = new string[] { }; 
 
-            // Reading the env file and replacing each variables
+            // Reading the env file and replacing each variables.
             foreach (string line in environmentFileLines)
             {
                 bool foundVariable = false;
-                // Looping throug all environment variables
+
+                // Looping throug all environment variables.
                 foreach (UserChoice userChoice in userChoicesEnvironmentFile)
                 {
-                    if(line.Contains(userChoice.UserChoiceKey))
+                    // User choice matching variable is found.
+                    if (line.Contains(userChoice.UserChoiceKey))
                     {
+                        // Replacing the variable
                         foundVariable = true;
                         string newValue = userChoice.UserChoiceKey + "=" + userChoice.UserChoiceValue;
                         tmpStringList.Add(newValue);
@@ -260,7 +272,6 @@ namespace ContainerInstaller.ViewModels
             // Looping throug all processes running at the moment
             foreach (Process process in Process.GetProcesses())
             {
-
                 if (process.ProcessName.Contains(programName))
                 {
                     return true;
@@ -278,11 +289,11 @@ namespace ContainerInstaller.ViewModels
             return containerOptions;
         }
 
+        // When user is choosing from the list of containers.
+        // We update the choosen container options that the user is able to enter.
         public void UpdateUserChoices()
         {
             dynamic containerOptions = ReadContainerInfoFile();
-
-            Console.WriteLine(containerOptions);
 
             userChoicesDockerFile.Clear();
             userChoicesEnvironmentFile.Clear();
@@ -290,7 +301,6 @@ namespace ContainerInstaller.ViewModels
             // Adding docker compose file variable options
             foreach (dynamic options in containerOptions["options"])
             {
-
                 foreach (JProperty option in options.Properties())
                 {
                     // Adding userchoices to frontend
