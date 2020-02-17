@@ -60,7 +60,7 @@ namespace ContainerInstaller.Models
 
         public void FindAndReplaceValue(string value)
         {
-            foreach (UserChoice userChoice in ContainerInstallerViewModel.userChoices)
+            foreach (UserChoice userChoice in ContainerInstallerViewModel.UserChoicesDockerFile)
             {
                 if(userChoice.userChoiceKey == this.userChoiceKey)
                 {

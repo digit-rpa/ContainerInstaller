@@ -26,7 +26,7 @@
                 <StackPanel>
                     <TextBlock Style="{StaticResource Headline}">Docker compose file variables</TextBlock>
                     <ListBox
-                            ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            ItemsSource="{Binding UserChoicesDockerFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             SelectedValuePath="Value" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -43,7 +43,7 @@
                 <StackPanel>
                     <TextBlock Style="{StaticResource Headline}">Environment file variables</TextBlock>
                     <ListBox
-                            ItemsSource="{Binding UserChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            ItemsSource="{Binding UserChoicesEnvironmentFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             SelectedValuePath="Value" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>

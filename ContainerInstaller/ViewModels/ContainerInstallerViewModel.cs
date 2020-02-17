@@ -26,8 +26,9 @@ namespace ContainerInstaller.ViewModels
         Dictionary<string, string> containers = new Dictionary<string, string>();
 
         Dictionary<string, string> containerOptionsUserInput = new Dictionary<string, string>();
-        
-        public static ObservableCollection<UserChoice> userChoices = new ObservableCollection<UserChoice>();
+
+        public static ObservableCollection<UserChoice> userChoicesDockerFile = new ObservableCollection<UserChoice>();
+        private static ObservableCollection<UserChoice> userChoicesEnvironmentFile = new ObservableCollection<UserChoice>();
 
         // We want to inform the user of the current state of operation
         string healthState;
@@ -51,7 +52,7 @@ namespace ContainerInstaller.ViewModels
             dynamic containerSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
             // Setup settings is where all of the program settings are placed
             setupSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "setup-settings.json");
-            
+
             // Wich Containers is there to choose from by the user?
             foreach (dynamic container in containerSettings["container-choices"])
             {
@@ -124,11 +125,31 @@ namespace ContainerInstaller.ViewModels
                     // We need to move .env.example to .evn
                     File.Move(dockerComposeFilesBasePath + ".env.example", dockerComposeFilesBasePath + ".env");
 
-                    if (!String.IsNullOrEmpty(userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString()))
-                    {
-                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "VIRTUAL_HOST=" + userChoices.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString() + " \r\n");
-                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "DB_ROOT_PASSWORD=" + userChoices.Single(x => x.UserChoiceKey == "DATABASE_ROOT_PASSWORD_VALUE").UserChoiceValue.ToString() + " \r\n");
+                    try { 
+                        string[] environmentFileLines = File.ReadAllLines(dockerComposeFilesBasePath + ".env");
+                        string[] environmentFileLinesWithReplacements = ReplaceEnvironmentVariables(environmentFileLines);
+                        // Emptying the .env file
+                        File.WriteAllText(dockerComposeFilesBasePath + ".env", string.Empty);
+                        // Inserting lines wich are replaced with users choices
+                        File.WriteAllLines(dockerComposeFilesBasePath + ".env", environmentFileLinesWithReplacements);
+
+                        foreach(string line in environmentFileLinesWithReplacements)
+                        {
+                            Console.WriteLine("LINES: " + line);
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
+
+                    // INSTEAD OF THIS WE WILL GO THROUGH EACH LINE AND REPLACE ENV VARIABLES AS NEEDED
+                    /*if (!String.IsNullOrEmpty(userChoicesDockerFile.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString()))
+                    {
+                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "VIRTUAL_HOST=" + userChoicesDockerFile.Single(x => x.UserChoiceKey == "VIRTUAL_HOST_VALUE").UserChoiceValue.ToString() + " \r\n");
+                        File.AppendAllText(dockerComposeFilesBasePath + ".env", "DB_ROOT_PASSWORD=" + userChoicesDockerFile.Single(x => x.UserChoiceKey == "DATABASE_ROOT_PASSWORD_VALUE").UserChoiceValue.ToString() + " \r\n");
+                    }*/
                 }
                 catch (Exception e)
                 {
@@ -142,7 +163,7 @@ namespace ContainerInstaller.ViewModels
                 }
 
                 // Setting users choice
-                foreach (UserChoice userChoice in userChoices)
+                foreach (UserChoice userChoice in userChoicesDockerFile)
                 {
                     dockerComposeFile.Options.Add(userChoice.UserChoiceKey, userChoice.UserChoiceValue);
                 }
@@ -188,7 +209,7 @@ namespace ContainerInstaller.ViewModels
 
                 if (!String.IsNullOrEmpty(installationScript))
                 {
-                    command += "docker exec " + userChoices.Single(x => x.UserChoiceKey == "CONTAINER_NAME_VALUE").UserChoiceValue.ToString() + " php " + installationScript + " && ";
+                    command += "docker exec " + userChoicesDockerFile.Single(x => x.UserChoiceKey == "WEB_CONTAINER_NAME_VALUE").UserChoiceValue.ToString() + " php " + installationScript + " && ";
                 }
 
                 command += "timeout 15 && ";
@@ -202,6 +223,36 @@ namespace ContainerInstaller.ViewModels
                 cmd.Start();
 
             }
+        }
+
+        private string[] ReplaceEnvironmentVariables(string[] environmentFileLines)
+        {
+            List<string> tmpStringList = new List<string>();
+            //string[] tmpStringArray = new string[] { }; 
+
+            // Reading the env file and replacing each variables
+            foreach (string line in environmentFileLines)
+            {
+                bool foundVariable = false;
+                // Looping throug all environment variables
+                foreach (UserChoice userChoice in userChoicesEnvironmentFile)
+                {
+                    if(line.Contains(userChoice.UserChoiceKey))
+                    {
+                        foundVariable = true;
+                        string newValue = userChoice.UserChoiceKey + "=" + userChoice.UserChoiceValue;
+                        tmpStringList.Add(newValue);
+                    }
+                }
+
+                // If we did not find anything to replace just insert the line as is
+                if(!foundVariable)
+                {
+                    tmpStringList.Add(line);
+                }               
+            }
+
+            return tmpStringList.ToArray();
         }
 
         private bool CheckProgramIsRunning(string programName)
@@ -231,15 +282,19 @@ namespace ContainerInstaller.ViewModels
         {
             dynamic containerOptions = ReadContainerInfoFile();
 
-            userChoices.Clear();
+            Console.WriteLine(containerOptions);
 
+            userChoicesDockerFile.Clear();
+            userChoicesEnvironmentFile.Clear();
+
+            // Adding docker compose file variable options
             foreach (dynamic options in containerOptions["options"])
             {
 
                 foreach (JProperty option in options.Properties())
                 {
                     // Adding userchoices to frontend
-                    userChoices.Add(
+                    userChoicesDockerFile.Add(
                         new UserChoice
                         {
                             UserChoiceKey = option.Name,
@@ -248,11 +303,30 @@ namespace ContainerInstaller.ViewModels
                     );
                 }
             }
-        }
 
-        private void ReplaceEnvironmentVariables()
-        {
+            // Since this might not be present in the file, we will just try
+            try { 
+                // Adding environment file options
+                foreach (dynamic options in containerOptions["environment-variables"])
+                {
 
+                    foreach (JProperty option in options.Properties())
+                    {
+                        // Adding userchoices to frontend
+                        userChoicesEnvironmentFile.Add(
+                            new UserChoice
+                            {
+                                UserChoiceKey = option.Name,
+                                UserChoiceValue = option.Value.ToString()
+                            }
+                        );
+                    }
+                }
+            } 
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         // Getters and Setters
@@ -298,19 +372,18 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
-        public static ObservableCollection<UserChoice> UserChoices
+        public static ObservableCollection<UserChoice> UserChoicesDockerFile
         {
             get
             {
-                return userChoices;
+                return userChoicesDockerFile;
             }
             set
             {
-                userChoices = value;
+                userChoicesDockerFile = value;
             }
         }
 
-
-
+        public static ObservableCollection<UserChoice> UserChoicesEnvironmentFile { get => userChoicesEnvironmentFile; set => userChoicesEnvironmentFile = value; }
     }
 }
