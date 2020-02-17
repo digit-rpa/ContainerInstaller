@@ -92,6 +92,7 @@ namespace ContainerInstaller.ViewModels
         // Executed when user is pressing setup container button in the UI.
         private void SetupContainer(object obj)
         {
+            
             // If the user has choosen a container to install
             // And we have dockerForWindowsRunning we start setting up/installing the container
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
@@ -128,11 +129,7 @@ namespace ContainerInstaller.ViewModels
                     {
                         Directory.Move(directory, dockerComposeFilesBasePath);
                     }
-
-                    // Deleting temporary files and folders.
-                    Directory.Delete(helper.GetExecutionPath() + "workfolder");
-                    File.Delete(helper.GetExecutionPath() + "master.zip");
-
+                                       
                     // Moving .env.example to .evn.
                     File.Move(dockerComposeFilesBasePath + ".env.example", dockerComposeFilesBasePath + ".env");
 
@@ -217,7 +214,19 @@ namespace ContainerInstaller.ViewModels
                 // Finish up
                 command += "timeout 15 && ";
                 command += "exit";
-                
+
+                //Try to clean up from last unsuccessful run.
+                try
+                {
+                    // Deleting temporary files and folders.
+                    Directory.Delete(helper.GetExecutionPath() + "workfolder", true);
+                    File.Delete(helper.GetExecutionPath() + "master.zip");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
                 // Lets try to setup container by docker-compose.yml file inside CMD.
                 try
                 { 
@@ -230,6 +239,7 @@ namespace ContainerInstaller.ViewModels
                 {
                     Console.WriteLine(e);
                 }
+
             }
         }
 
