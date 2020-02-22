@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ContainerInstaller"
         xmlns:Views="clr-namespace:ContainerInstaller.Views"
+        xmlns:Models="clr-namespace:ContainerInstaller.Models"
         xmlns:ViewModels="clr-namespace:ContainerInstaller.ViewModels" x:Class="ContainerInstaller.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Style="{StaticResource {x:Type Window}}">
@@ -12,7 +13,14 @@
         <ViewModels:MainWindowViewModel/>
     </Window.DataContext>
     <StackPanel>
-        
+
+        <Image Style="{StaticResource LoadingWheel}" Source="/Images/icons/loadingWheel.png" Visibility="{Binding Source={x:Static Models:LoadingWheel.Instance},
+                                        Path=Visibility,
+                                        UpdateSourceTrigger=PropertyChanged,
+                                        FallbackValue=Hidden}" >
+        </Image>
+
+
         <!-- THIS IS ACTUALLY WORKING WE JUST CANT SEE WHAT THE OUTPUT WOULD BE IN EDITOR-->
         <ContentControl x:Name="PageContentControl" Content="Main Dynamic Content Area"/>
         

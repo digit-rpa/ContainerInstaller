@@ -311,6 +311,7 @@ namespace ContainerInstaller.ViewModels
             Task<bool> task = new Task<bool>(() => UpdateUserChoices());
             task.Start();
             bool done = await task;
+            LoadingWheel.GetInstance().Visibility = Visibility.Hidden;
         }
 
         // When user is choosing from the list of containers.
@@ -417,6 +418,7 @@ namespace ContainerInstaller.ViewModels
             {
                 choosenContainer = value;
                 OnPropertyChanged("ChoosenContainer");
+                LoadingWheel.GetInstance().Visibility = Visibility.Visible;
                 UpdateUserChoicesAsync();
             }
         }
