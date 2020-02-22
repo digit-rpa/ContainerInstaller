@@ -10,6 +10,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,7 +56,7 @@ namespace ContainerInstaller.ViewModels
         public ContainerInstallerViewModel()
         {
             // Relay commands 
-            SetupContainerCommand = new RelayCommand(SetupContainer, param => true);
+            SetupContainerCommand = new RelayCommand(SetupContainerAsync, param => true);
 
             // Reading container settings 
             // Where is raw template file of docker-compose.yml and the container-info.json located foreach container choice
@@ -89,10 +90,16 @@ namespace ContainerInstaller.ViewModels
             }
         }
 
-        // Executed when user is pressing setup container button in the UI.
-        private void SetupContainer(object obj)
+        private async void SetupContainerAsync(object obj)
         {
-            
+            Task task = new Task(() => SetupContainer());
+            task.Start();
+            await task;
+        }
+
+        // Executed when user is pressing setup container button in the UI.
+        private void SetupContainer()
+        {
             // If the user has choosen a container to install
             // And we have dockerForWindowsRunning we start setting up/installing the container
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
@@ -299,28 +306,45 @@ namespace ContainerInstaller.ViewModels
             return containerOptions;
         }
 
+        private async void UpdateUserChoicesAsync()
+        {
+            Task<bool> task = new Task<bool>(() => UpdateUserChoices());
+            task.Start();
+            bool done = await task;
+        }
+
         // When user is choosing from the list of containers.
         // We update the choosen container options that the user is able to enter.
-        public void UpdateUserChoices()
+        public bool UpdateUserChoices()
         {
             dynamic containerOptions = ReadContainerInfoFile();
 
-            userChoicesDockerFile.Clear();
-            userChoicesEnvironmentFile.Clear();
+            // Sending information to the UI Thread.
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                userChoicesDockerFile.Clear();
+                userChoicesEnvironmentFile.Clear();
+            });
 
             // Adding docker compose file variable options
             foreach (dynamic options in containerOptions["options"])
             {
                 foreach (JProperty option in options.Properties())
                 {
-                    // Adding userchoices to frontend
-                    userChoicesDockerFile.Add(
-                        new UserChoice
-                        {
-                            UserChoiceKey = option.Name,
-                            UserChoiceValue = option.Value.ToString()
-                        }
-                    );
+
+                    // Sending information to the UI Thread.
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        // Adding userchoices to frontend
+                        userChoicesDockerFile.Add(
+                            new UserChoice
+                            {
+                                UserChoiceKey = option.Name,
+                                UserChoiceValue = option.Value.ToString()
+                            }
+                       
+                        );
+                    });
                 }
             }
 
@@ -332,14 +356,18 @@ namespace ContainerInstaller.ViewModels
 
                     foreach (JProperty option in options.Properties())
                     {
-                        // Adding userchoices to frontend
-                        userChoicesEnvironmentFile.Add(
-                            new UserChoice
-                            {
-                                UserChoiceKey = option.Name,
-                                UserChoiceValue = option.Value.ToString()
-                            }
-                        );
+                        // Sending information to the UI Thread.
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            // Adding userchoices to frontend
+                            userChoicesEnvironmentFile.Add(
+                                new UserChoice
+                                {
+                                    UserChoiceKey = option.Name,
+                                    UserChoiceValue = option.Value.ToString()
+                                }
+                            );
+                        });
                     }
                 }
             } 
@@ -347,6 +375,7 @@ namespace ContainerInstaller.ViewModels
             {
                 Console.WriteLine(e);
             }
+            return true;
         }
 
         // Getters and Setters
@@ -388,7 +417,7 @@ namespace ContainerInstaller.ViewModels
             {
                 choosenContainer = value;
                 OnPropertyChanged("ChoosenContainer");
-                UpdateUserChoices();
+                UpdateUserChoicesAsync();
             }
         }
 

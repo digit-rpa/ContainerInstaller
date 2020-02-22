@@ -6,7 +6,7 @@
 
     <SolidColorBrush x:Key="AppBackgroundColor" Color="#408CC1" />
     <SolidColorBrush x:Key="AppTextColor" Color="White" />
-    <SolidColorBrush x:Key="AppUserChoiceWrapperBackground" Color="#5c9dcc0" />
+    <!--<SolidColorBrush x:Key="AppUserChoiceWrapperBackground" Color="#5c9dcc0" />-->
     <system:Double x:Key="AppHeadlineFontSize">20</system:Double>
     <system:Double x:Key="AppFontSize">14</system:Double>
     <system:Double x:Key="AppMinHeight">800</system:Double>
@@ -137,7 +137,7 @@
     
     <!-- User choice input wrapper style -->
     <Style x:Key="InputWrapper" TargetType="WrapPanel">
-        <Setter Property="Background" Value="{StaticResource AppUserChoiceWrapperBackground}" />
+       <!--<Setter Property="Background" Value="{StaticResource AppUserChoiceWrapperBackground}" />-->
         <!-- <Style.Resources>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="BorderThickness" Value="20" />
