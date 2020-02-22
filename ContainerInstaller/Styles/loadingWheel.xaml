@@ -4,7 +4,8 @@
 
     <!-- Loading Wheel Style -->
     <Style x:Key="LoadingWheel" TargetType="Image">
-        <Setter Property="MaxHeight" Value="40" />
+        <Setter Property="Width" Value="60" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Visibility" Value="Hidden" />
         <Setter Property="RenderTransform">
             <Setter.Value>

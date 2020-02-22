@@ -140,6 +140,7 @@
     <Content Include="Images\icons\bullet-white.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Images\icons\loader.png" />
     <Content Include="Images\icons\loadingWheel.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
