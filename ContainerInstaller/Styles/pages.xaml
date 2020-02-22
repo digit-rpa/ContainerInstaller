@@ -6,6 +6,7 @@
 
     <SolidColorBrush x:Key="AppBackgroundColor" Color="#408CC1" />
     <SolidColorBrush x:Key="AppTextColor" Color="White" />
+    <SolidColorBrush x:Key="AppUserChoiceWrapperBackground" Color="#5c9dcc0" />
     <system:Double x:Key="AppHeadlineFontSize">20</system:Double>
     <system:Double x:Key="AppFontSize">14</system:Double>
     <system:Double x:Key="AppMinHeight">800</system:Double>
@@ -115,14 +116,34 @@
         </Setter>
     </Style>
 
+    <!-- User choice input styles-->
     <Style x:Key="UserChoice" TargetType="TextBlock">
         <Setter Property="Margin" Value="10,10,10,10" />
         <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="MinWidth" Value="300" />
     </Style>
 
     <Style x:Key="UserChoiceInput" TargetType="TextBox">
+        <Setter Property="Height" Value="35" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Margin" Value="10,10,10,10" />
+        <Style.Resources>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="CornerRadius" Value="5" />
+            </Style>
+        </Style.Resources>
     </Style>
-
+    
+    <!-- User choice input wrapper style -->
+    <Style x:Key="InputWrapper" TargetType="WrapPanel">
+        <Setter Property="Background" Value="{StaticResource AppUserChoiceWrapperBackground}" />
+        <!-- <Style.Resources>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="BorderThickness" Value="20" />
+                <Setter Property="BorderBrush" Value="Black" />
+                <Setter Property="CornerRadius" Value="20" />
+            </Style> 
+        </Style.Resources>-->
+    </Style>
 </ResourceDictionary>

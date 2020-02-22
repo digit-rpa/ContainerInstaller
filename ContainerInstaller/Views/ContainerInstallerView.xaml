@@ -30,7 +30,7 @@
                             SelectedValuePath="Value" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <WrapPanel Orientation="Horizontal">
+                                <WrapPanel Style="{StaticResource InputWrapper}" Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource UserChoice}" Text="{Binding UserChoiceKey}" />
                                     <TextBox Style="{StaticResource UserChoiceInput}" Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
                                 </WrapPanel>
@@ -47,7 +47,7 @@
                             SelectedValuePath="Value" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <WrapPanel Orientation="Horizontal">
+                                <WrapPanel Style="{StaticResource InputWrapper}" Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource UserChoice}" Text="{Binding UserChoiceKey}" />
                                     <TextBox Style="{StaticResource UserChoiceInput}" Text="{Binding UserChoiceValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="400" />
                                 </WrapPanel>
