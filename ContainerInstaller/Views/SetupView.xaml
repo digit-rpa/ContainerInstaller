@@ -60,7 +60,7 @@
             <StackPanel>
                 <TextBlock Style="{StaticResource ResourceKey=Headline}">Installation:</TextBlock>
                 <TextBlock>Choose container installation path:</TextBlock>
-                <TextBox Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Focusable="False" IsEnabled="False" />
+                <TextBox Style="{StaticResource UserChoiceInput}" Text="{Binding ContainerInstallationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Focusable="False" IsEnabled="False" />
                 <TextBlock>
                     All Containers will be stored here with their docker-compose.yml file.
                 </TextBlock>

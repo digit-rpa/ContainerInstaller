@@ -127,7 +127,7 @@
     <Style x:Key="UserChoiceInput" TargetType="TextBox">
         <Setter Property="Height" Value="35" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Margin" Value="10,10,10,10" />
+        <Setter Property="Margin" Value="0,10,10,10" />
         <Style.Resources>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="CornerRadius" Value="5" />
