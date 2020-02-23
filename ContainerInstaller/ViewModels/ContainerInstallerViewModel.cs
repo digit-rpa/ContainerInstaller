@@ -95,6 +95,7 @@ namespace ContainerInstaller.ViewModels
             Task task = new Task(() => SetupContainer());
             task.Start();
             await task;
+            LoadingWheel.GetInstance().Visibility = Visibility.Hidden;
         }
 
         // Executed when user is pressing setup container button in the UI.
@@ -104,6 +105,8 @@ namespace ContainerInstaller.ViewModels
             // And we have dockerForWindowsRunning we start setting up/installing the container
             if (dockerForWindowsIsRunning && !String.IsNullOrEmpty(choosenContainer))
             {
+
+                LoadingWheel.GetInstance().Visibility = Visibility.Visible;
 
                 // Setting the base path of Container installation placement.
                 dockerComposeFilesBasePath = setupSettings["ContainerInstallationPath"] + @"\" + choosenContainer + @"\";
