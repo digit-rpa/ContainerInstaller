@@ -60,7 +60,7 @@ namespace ContainerInstaller.ViewModels
 
             // Reading container settings 
             // Where is raw template file of docker-compose.yml and the container-info.json located foreach container choice
-            dynamic containerSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json");
+            dynamic containerSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "Settings/container-settings.json");
             
             // Reading setup-settings.json file into dynamic variable used in SetupContainer method.
             setupSettings = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "setup-settings.json");

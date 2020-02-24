@@ -14,7 +14,7 @@
     </Window.DataContext>
     <StackPanel>
 
-        <Image Style="{StaticResource LoadingWheel}" Source="/Images/icons/loadingWheel.png" Visibility="{Binding Source={x:Static Models:LoadingWheel.Instance},
+        <Image Style="{StaticResource LoadingWheel}" Source="/Images/Icons/loadingWheel.png" Visibility="{Binding Source={x:Static Models:LoadingWheel.Instance},
                                         Path=Visibility,
                                         UpdateSourceTrigger=PropertyChanged,
                                         FallbackValue=Hidden}" RenderTransformOrigin="0.5,0.5" >

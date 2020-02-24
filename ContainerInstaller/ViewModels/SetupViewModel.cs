@@ -31,7 +31,7 @@ namespace ContainerInstaller.ViewModels
             helper = new Helper();
             
             // Getting program dependencies to show on the setup startup page
-            dynamic programDependencies = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "settings/container-settings.json")["setup-dependencies"];
+            dynamic programDependencies = helper.ReadSettingsFromJsonFile(helper.GetExecutionPath() + "Settings/container-settings.json")["setup-dependencies"];
 
             foreach(dynamic dependency in programDependencies)
             {

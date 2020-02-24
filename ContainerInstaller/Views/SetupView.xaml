@@ -38,7 +38,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Style="{StaticResource BulletPoint}" Source="/Images/icons/bullet-white.png" />
+                                <Image Style="{StaticResource BulletPoint}" Source="/Images/Icons/bullet-white.png" />
                                 <TextBlock Style="{StaticResource ListViewItem}" Text="{Binding Key}" />
                                 <TextBlock Style="{StaticResource ListViewItem}" Text=": " />
                                 <TextBlock Style="{StaticResource ListViewItem}" Text="{Binding Value}" />
